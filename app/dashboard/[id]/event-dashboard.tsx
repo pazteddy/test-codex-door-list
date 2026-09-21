@@ -265,6 +265,8 @@ export default function EventDashboard({ eventId }: { eventId: string }) {
     );
   }
 
+  const hasAttendees = dashboard.registrations.length > 0;
+
   return (
     <main className="page-shell dashboard-page">
       <header className="page-header detail-header">
@@ -341,18 +343,20 @@ export default function EventDashboard({ eventId }: { eventId: string }) {
           <h2 id="attendees-heading">Asistentes registrados</h2>
           <div className="section-heading-actions">
             <span>{dashboard.registrations.length} personas</span>
-            <button
-              className="button button-secondary"
-              type="button"
-              disabled={exportState === "loading"}
-              aria-busy={exportState === "loading"}
-              onClick={() => void downloadAttendees()}
-            >
-              {exportState === "loading" ? "Descargando…" : "Descargar CSV"}
-            </button>
+            {hasAttendees ? (
+              <button
+                className="button button-secondary"
+                type="button"
+                disabled={exportState === "loading"}
+                aria-busy={exportState === "loading"}
+                onClick={() => void downloadAttendees()}
+              >
+                {exportState === "loading" ? "Descargando…" : "Descargar CSV"}
+              </button>
+            ) : null}
           </div>
         </div>
-        {exportState === "error" ? (
+        {hasAttendees && exportState === "error" ? (
           <p className="alert alert-error" role="alert">
             No pudimos descargar los asistentes. Intenta nuevamente.
           </p>
@@ -362,7 +366,7 @@ export default function EventDashboard({ eventId }: { eventId: string }) {
             <caption className="visually-hidden">Personas registradas y su tipo de entrada</caption>
             <thead><tr><th scope="col">Asistente</th><th scope="col">Tipo de entrada</th><th scope="col">Registro</th></tr></thead>
             <tbody>
-              {dashboard.registrations.length === 0 ? (
+              {!hasAttendees ? (
                 <tr>
                   <td colSpan={3}>
                     <div className="table-state">
