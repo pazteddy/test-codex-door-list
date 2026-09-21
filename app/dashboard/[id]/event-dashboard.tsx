@@ -265,6 +265,8 @@ export default function EventDashboard({ eventId }: { eventId: string }) {
     );
   }
 
+  const hasAttendees = dashboard.registrations.length > 0;
+
   return (
     <main className="page-shell dashboard-page">
       <header className="page-header detail-header">
@@ -341,15 +343,17 @@ export default function EventDashboard({ eventId }: { eventId: string }) {
           <h2 id="attendees-heading">Asistentes registrados</h2>
           <div className="section-heading-actions">
             <span>{dashboard.registrations.length} personas</span>
-            <button
-              className="button button-secondary"
-              type="button"
-              disabled={exportState === "loading"}
-              aria-busy={exportState === "loading"}
-              onClick={() => void downloadAttendees()}
-            >
-              {exportState === "loading" ? "Descargando…" : "Descargar CSV"}
-            </button>
+            {hasAttendees ? (
+              <button
+                className="button button-secondary"
+                type="button"
+                disabled={exportState === "loading"}
+                aria-busy={exportState === "loading"}
+                onClick={() => void downloadAttendees()}
+              >
+                {exportState === "loading" ? "Descargando…" : "Descargar CSV"}
+              </button>
+            ) : null}
           </div>
         </div>
         {exportState === "error" ? (
@@ -362,7 +366,13 @@ export default function EventDashboard({ eventId }: { eventId: string }) {
             <caption className="visually-hidden">Personas registradas y su tipo de entrada</caption>
             <thead><tr><th scope="col">Asistente</th><th scope="col">Tipo de entrada</th><th scope="col">Registro</th></tr></thead>
             <tbody>
-              {dashboard.registrations.length === 0 ? (
+              {hasAttendees ? dashboard.registrations.map((registration) => (
+                <tr key={registration.id}>
+                  <td><strong>{registration.attendeeName}</strong><span>{registration.attendeeEmail}</span></td>
+                  <td><span className="status-badge status-neutral">{registration.ticketType.name}</span></td>
+                  <td>{formatOrganizerEventDate(registration.registeredAt)}</td>
+                </tr>
+              )) : (
                 <tr>
                   <td colSpan={3}>
                     <div className="table-state">
@@ -371,13 +381,7 @@ export default function EventDashboard({ eventId }: { eventId: string }) {
                     </div>
                   </td>
                 </tr>
-              ) : dashboard.registrations.map((registration) => (
-                  <tr key={registration.id}>
-                    <td><strong>{registration.attendeeName}</strong><span>{registration.attendeeEmail}</span></td>
-                    <td><span className="status-badge status-neutral">{registration.ticketType.name}</span></td>
-                    <td>{formatOrganizerEventDate(registration.registeredAt)}</td>
-                  </tr>
-                ))}
+              )}
             </tbody>
           </table>
         </div>
