@@ -190,6 +190,7 @@ export default function EventDashboard({ eventId }: { eventId: string }) {
     () => dashboard?.ticketTypes.reduce((total, ticketType) => total + ticketType.registrationCount, 0) ?? 0,
     [dashboard],
   );
+  const hasRegistrations = (dashboard?.registrations.length ?? 0) > 0;
 
   if (loading) {
     return (
@@ -341,15 +342,17 @@ export default function EventDashboard({ eventId }: { eventId: string }) {
           <h2 id="attendees-heading">Asistentes registrados</h2>
           <div className="section-heading-actions">
             <span>{dashboard.registrations.length} personas</span>
-            <button
-              className="button button-secondary"
-              type="button"
-              disabled={exportState === "loading"}
-              aria-busy={exportState === "loading"}
-              onClick={() => void downloadAttendees()}
-            >
-              {exportState === "loading" ? "Descargando…" : "Descargar CSV"}
-            </button>
+            {hasRegistrations ? (
+              <button
+                className="button button-secondary"
+                type="button"
+                disabled={exportState === "loading"}
+                aria-busy={exportState === "loading"}
+                onClick={() => void downloadAttendees()}
+              >
+                {exportState === "loading" ? "Descargando…" : "Descargar CSV"}
+              </button>
+            ) : null}
           </div>
         </div>
         {exportState === "error" ? (
@@ -362,7 +365,7 @@ export default function EventDashboard({ eventId }: { eventId: string }) {
             <caption className="visually-hidden">Personas registradas y su tipo de entrada</caption>
             <thead><tr><th scope="col">Asistente</th><th scope="col">Tipo de entrada</th><th scope="col">Registro</th></tr></thead>
             <tbody>
-              {dashboard.registrations.length === 0 ? (
+              {!hasRegistrations ? (
                 <tr>
                   <td colSpan={3}>
                     <div className="table-state">
